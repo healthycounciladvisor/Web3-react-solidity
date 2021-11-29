@@ -7,12 +7,19 @@
 
 # testing
 /coverage
+/coverage.json
+typechain
 
 # production
 /build
 
+#Hardhat files
+cache
+artifacts
+
 # misc
 .DS_Store
+.env
 .env.local
 .env.development.local
 .env.test.local
