@@ -2,7 +2,11 @@
 
 Experimenting with Ethereum tokens using Solidity.
 
-## Create React App
+### References
+
+- Dapp University's [Code Your Own Cryptocurrency on Ethereum Series](https://www.youtube.com/playlist?list=PLS5SEs8ZftgWFuKg2wbm_0GLV0Tiy1R-n)
+
+### Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
