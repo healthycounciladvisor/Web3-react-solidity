@@ -1,6 +1,5 @@
 const { assert, expect } = require("chai");
 const { ethers } = require("hardhat");
-const { Contract } = require("hardhat/internal/hardhat-network/stack-traces/model");
 
 describe("Token Contract", function () {
   let TokenContract;
@@ -8,22 +7,27 @@ describe("Token Contract", function () {
   let initialSupply;
   let owner;
   let alice;
+  let bob;
+  let charlie;
 
   beforeEach(async () => {
     TokenContract = await ethers.getContractFactory("Token");
     initialSupply = 1000000;
     tokenContract = await TokenContract.deploy(initialSupply);
     await tokenContract.deployed();
-    [owner, alice] = await ethers.getSigners();
+    [owner, alice, bob, charlie] = await ethers.getSigners();
   });
 
   describe("Deployment", function () {
     it("Should initialize contract with correct values", async () => {
-      const tokenName = await tokenContract.name();
-      assert.equal(ethers.utils.parseBytes32String(tokenName), "TestNetToken", "Sets correct name for token");
-      const tokenSymbol = await tokenContract.symbol();
-      console.log(tokenSymbol);
-      assert.equal(ethers.utils.parseBytes32String(tokenSymbol), "TNT", "Sets correct symbol for token");
+      let tokenName = await tokenContract.name();
+      let tokenSymbol = await tokenContract.symbol();
+
+      tokenName = ethers.utils.parseBytes32String(tokenName);
+      tokenSymbol = ethers.utils.parseBytes32String(tokenSymbol);
+
+      assert.equal(tokenName, "TestNetToken", "Sets correct name for token");
+      assert.equal(tokenSymbol, "TNT", "Sets correct symbol for token");
     });
 
     it("Should set total supply on deployment", async () => {
@@ -39,9 +43,8 @@ describe("Token Contract", function () {
 
   describe("Transfers", function () {
     it("Should revert if sender doesn't have enough tokens", async () => {
-      await expect(tokenContract.transfer(alice.address, 1000001)).to.be.revertedWith(
-        "You don't have enough TNT tokens to complete this transaction."
-      );
+      const tx = tokenContract.transfer(alice.address, 1000001);
+      await expect(tx).to.be.revertedWith("You don't have enough TNT tokens to complete this transaction.");
     });
 
     it("Should transfer tokens and update balances", async () => {
@@ -53,15 +56,73 @@ describe("Token Contract", function () {
     });
 
     it("Should emit Transfer event on transfer", async () => {
-      await expect(tokenContract.transfer(alice.address, 250))
-        .to.emit(tokenContract, "Transfer")
-        .withArgs(owner.address, alice.address, 250);
+      const tx = tokenContract.transfer(alice.address, 250);
+      await expect(tx).to.emit(tokenContract, "Transfer").withArgs(owner.address, alice.address, 250);
     });
 
     it("Should return 'true' when transfer successfully completes", async () => {
-      // Using ether.js' .callStatic to simulate function as if executed on-chain in order to get return value
+      // Using ether.js .callStatic to simulate function as if executed on-chain in order to get return value
       // https://ethereum.stackexchange.com/a/109992
       const tx = await tokenContract.callStatic.transfer(alice.address, 250);
+      assert.equal(tx, true, "Returns true on success");
+    });
+  });
+
+  describe("Allowance", function () {
+    it("Should store allowance for delegated transfer", async () => {
+      await tokenContract.approve(alice.address, 250);
+      const tx = await tokenContract.callStatic.allowance(owner.address, alice.address);
+      assert.equal(tx, 250, "Stores allowance for delegated transfer");
+    });
+
+    it("Should emit Approval event on approve", async () => {
+      const tx = tokenContract.approve(alice.address, 250);
+      await expect(tx).to.emit(tokenContract, "Approval").withArgs(owner.address, alice.address, 250);
+    });
+
+    it("Should return 'true' if tokens approved for delegated transfer", async () => {
+      const tx = await tokenContract.callStatic.approve(alice.address, 250);
+      assert.equal(tx, true, "Returns true on success");
+    });
+  });
+
+  describe("Delegated Transfers", function () {
+    beforeEach(async () => {
+      await tokenContract.transfer(alice.address, 250);
+      await tokenContract.connect(alice).approve(charlie.address, 200);
+    });
+
+    it("Should revert if delegate transfers more tokens than delegator's balance", async () => {
+      const tx = tokenContract.connect(charlie).transferFrom(alice.address, bob.address, 300);
+      await expect(tx).to.be.revertedWith(
+        "Original account doesn't have enough TNT tokens to complete this transaction."
+      );
+    });
+
+    it("Should revert if delegate transfers more tokens than allowed", async () => {
+      const tx = tokenContract.connect(charlie).transferFrom(alice.address, bob.address, 250);
+      await expect(tx).to.be.revertedWith("You haven't been allocated enough TNT tokens to complete this transaction.");
+    });
+
+    it("Should transfer delegated tokens and update balances", async () => {
+      await expect(() =>
+        tokenContract.connect(charlie).transferFrom(alice.address, bob.address, 100)
+      ).to.changeTokenBalances(tokenContract, [alice, bob], [-100, 100]);
+    });
+
+    it("Should transfer delegated tokens and update allowance", async () => {
+      await tokenContract.connect(charlie).transferFrom(alice.address, bob.address, 100);
+      const tx = await tokenContract.callStatic.allowance(alice.address, charlie.address);
+      assert.equal(tx, 100, "Updates allowance after delegated transfer");
+    });
+
+    it("Should emit Transfer event on delegated transfer", async () => {
+      const tx = tokenContract.connect(charlie).transferFrom(alice.address, bob.address, 100);
+      await expect(tx).to.emit(tokenContract, "Transfer").withArgs(alice.address, bob.address, 100);
+    });
+
+    it("Should return 'true' if tokens approved for delegated transfer", async () => {
+      const tx = await tokenContract.connect(charlie).callStatic.transferFrom(alice.address, bob.address, 100);
       assert.equal(tx, true, "Returns true on success");
     });
   });
