@@ -48,11 +48,13 @@ describe("Token Contract", function () {
     });
 
     it("Should transfer tokens and update balances", async () => {
-      await expect(() => tokenContract.transfer(alice.address, 250)).to.changeTokenBalances(
-        tokenContract,
-        [owner, alice],
-        [-250, 250]
-      );
+      await tokenContract.transfer(alice.address, 250);
+
+      const ownerBalance = await tokenContract.balanceOf(owner.address);
+      const aliceBalance = await tokenContract.balanceOf(alice.address);
+
+      assert.equal(ownerBalance.toNumber(), 999750, "Sender balance updates after purchase.");
+      assert.equal(aliceBalance.toNumber(), 250, "Receiver balance updates after purchase.");
     });
 
     it("Should emit Transfer event on transfer", async () => {
@@ -105,9 +107,13 @@ describe("Token Contract", function () {
     });
 
     it("Should transfer delegated tokens and update balances", async () => {
-      await expect(() =>
-        tokenContract.connect(charlie).transferFrom(alice.address, bob.address, 100)
-      ).to.changeTokenBalances(tokenContract, [alice, bob], [-100, 100]);
+      await tokenContract.connect(charlie).transferFrom(alice.address, bob.address, 100);
+
+      const aliceBalance = await tokenContract.balanceOf(alice.address);
+      const bobBalance = await tokenContract.balanceOf(bob.address);
+
+      assert.equal(aliceBalance.toNumber(), 150, "Delegator balance updates after delegated transfer.");
+      assert.equal(bobBalance.toNumber(), 100, "Receiver balance updates after delegated transfer.");
     });
 
     it("Should transfer delegated tokens and update allowance", async () => {

@@ -2,14 +2,14 @@
 
 pragma solidity ^0.8.4;
 
-import "hardhat/console.sol";
-
 contract Token {
     bytes32 public name = "TestNetToken";
     bytes32 public symbol = "TNT";
     uint256 public totalSupply;
 
+    /* token owner => amount of owned tokens */
     mapping(address => uint256) public balanceOf;
+    /* delegator => (delegate => amount of allocated tokens) */
     mapping(address => mapping(address => uint256)) public allowance;
 
     event Transfer(address indexed _from, address indexed _to, uint256 _value);
@@ -37,7 +37,7 @@ contract Token {
 
         emit Transfer(msg.sender, _to, _value);
 
-        return true; // also need to handle false return value
+        return true; // TODO: handle false return value
     }
 
     function approve(address _spender, uint256 _value)
@@ -46,7 +46,7 @@ contract Token {
     {
         allowance[msg.sender][_spender] = _value;
         emit Approval(msg.sender, _spender, _value);
-        return true; // also need to handle false return value
+        return true; // TODO: handle false return value
     }
 
     function transferFrom(
@@ -69,6 +69,6 @@ contract Token {
 
         emit Transfer(_from, _to, _value);
 
-        return true; // also need to handle false return value
+        return true; // TODO: handle false return value
     }
 }
