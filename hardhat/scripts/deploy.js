@@ -2,8 +2,7 @@ const { ethers } = require("hardhat");
 
 async function main() {
   const TestNetToken = await ethers.getContractFactory("TestNetToken");
-  const initialSupply = 1000000;
-  const testNetToken = await TestNetToken.deploy(initialSupply);
+  const testNetToken = await TestNetToken.deploy();
   await testNetToken.deployed();
   console.log("TestNetToken deployed to:", testNetToken.address);
 
@@ -13,9 +12,22 @@ async function main() {
   await testNetCrowdSale.deployed();
   console.log("TestNetCrowdSale deployed to:", testNetCrowdSale.address);
 
+  const TestNetSwap = await ethers.getContractFactory("TestNetSwap");
+  const testNetSwap = await TestNetSwap.deploy(testNetToken.address);
+  await testNetSwap.deployed();
+  console.log("TestNetSwap deployed to:", testNetSwap.address);
+
   // Provide CrowdSale with 75% of initialSupply
-  const crowdSaleSupply = 750000;
-  testNetToken.transfer(testNetCrowdSale.address, crowdSaleSupply);
+  // const crowdSaleSupply = 750000;
+  // testNetToken.transfer(testNetCrowdSale.address, crowdSaleSupply);
+
+  // Provide Swap Exchange with 100% supply
+  const totalSupply = await testNetToken.totalSupply();
+  testNetToken.transfer(testNetSwap.address, totalSupply);
+
+  // OR with remaining supply (owner balance) after crowd sale
+  // const remainingSupply = await testNetToken.balanceOf(owner.address);
+  // testNetToken.transfer(testNetSwap.address, remainingSupply);
 }
 
 main()
