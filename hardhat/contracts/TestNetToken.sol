@@ -2,7 +2,11 @@
 
 pragma solidity ^0.8.4;
 
-contract Token {
+// TODO: handle false return value for transfer(), approve()
+// TODO: implement increase/decrease allowance methods
+// TODO: Check for vulnerabilities in code
+
+contract TestNetToken {
     bytes32 public name = "TestNetToken";
     bytes32 public symbol = "TNT";
     uint256 public totalSupply;
@@ -37,7 +41,7 @@ contract Token {
 
         emit Transfer(msg.sender, _to, _value);
 
-        return true; // TODO: handle false return value
+        return true;
     }
 
     function approve(address _spender, uint256 _value)
@@ -46,7 +50,7 @@ contract Token {
     {
         allowance[msg.sender][_spender] = _value;
         emit Approval(msg.sender, _spender, _value);
-        return true; // TODO: handle false return value
+        return true;
     }
 
     function transferFrom(

@@ -2,21 +2,24 @@
 
 pragma solidity ^0.8.0;
 
-import "./Token.sol";
+import "./TestNetToken.sol";
 
-contract TokenSwap {
-    bytes32 public name = "TokenSwap Instant Exchange";
+// TODO: handle false return value for transfer method in buyTokens(), endSale()
+// TODO: Check for vulnerabilities in code
+
+contract TestNetCrowdSale {
+    bytes32 public name = "TestNetToken Crowd Sale";
     uint256 public tokenPrice;
     uint256 public tokensSold;
     address payable owner;
 
-    Token public token;
+    TestNetToken public testNetToken;
 
     event Sell(address _buyer, uint256 _numberTokensPurchased);
 
-    constructor(Token _token, uint256 _tokenPrice) {
+    constructor(TestNetToken _testNetToken, uint256 _tokenPrice) {
         owner = payable(msg.sender);
-        token = _token;
+        testNetToken = _testNetToken;
         tokenPrice = _tokenPrice;
     }
 
@@ -27,9 +30,9 @@ contract TokenSwap {
     }
 
     function buyTokens(uint256 _tokenAmount) public payable {
-        uint256 tokenSwapSupply = token.balanceOf(address(this));
+        uint256 crowdSaleSupply = testNetToken.balanceOf(address(this));
         require(
-            tokenSwapSupply >= _tokenAmount,
+            crowdSaleSupply >= _tokenAmount,
             "Transaction would exceed available tokens. Please reduce token amount."
         );
         uint256 total = multiply(_tokenAmount, tokenPrice);
@@ -38,7 +41,7 @@ contract TokenSwap {
             "Not enough funds sent to complete this transaction."
         );
 
-        require(token.transfer(msg.sender, _tokenAmount)); // token.transfer currently doesn't handle false value
+        require(testNetToken.transfer(msg.sender, _tokenAmount));
 
         tokensSold += _tokenAmount;
         emit Sell(msg.sender, _tokenAmount);
@@ -49,7 +52,9 @@ contract TokenSwap {
             msg.sender == owner,
             "Only contract owner can complete this action."
         );
-        require(token.transfer(owner, token.balanceOf(address(this)))); // token.transfer currently doesn't handle false value
+        require(
+            testNetToken.transfer(owner, testNetToken.balanceOf(address(this)))
+        );
 
         selfdestruct(payable(owner));
     }

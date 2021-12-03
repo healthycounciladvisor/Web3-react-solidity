@@ -1,8 +1,12 @@
+import WalletWrapper from "./containers/WalletWrapper";
+import GlobalStyle from "./styles/GlobalStyle";
+
 function App() {
   return (
-    <div className='App'>
-      <p>TokenSwap</p>
-    </div>
+    <>
+      <WalletWrapper />
+      <GlobalStyle />
+    </>
   );
 }
 

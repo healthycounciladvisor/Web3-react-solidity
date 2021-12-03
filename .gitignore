@@ -14,8 +14,8 @@ typechain
 /build
 
 #Hardhat files
-cache
-artifacts
+/hardhat/cache
+/hardhat/artifacts
 
 # misc
 .DS_Store
