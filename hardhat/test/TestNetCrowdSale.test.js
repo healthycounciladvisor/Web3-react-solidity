@@ -1,6 +1,14 @@
 const { assert, expect } = require("chai");
 const { ethers } = require("hardhat");
 
+function formatEthers(amount) {
+  return ethers.utils.formatEther(`${amount}`);
+}
+
+function parseEthers(amount) {
+  return ethers.utils.parseEther(`${amount}`);
+}
+
 // From Ludu's Tweether tutorial test utils: https://github.com/t4t5/Tweether/blob/master/test/utils.js
 // Used when testing expected throw (e.g. "Token Sale End" > "Should self destruct when endSale called")
 const assertVMException = (error) => {
@@ -14,7 +22,6 @@ describe("CrowdSale Contract", function () {
   let TestNetToken;
   let testNetToken;
   let tokenPrice;
-  let initialSupply;
   let crowdSaleSupply;
   let owner;
   let alice;
@@ -23,8 +30,7 @@ describe("CrowdSale Contract", function () {
 
   beforeEach(async () => {
     TestNetToken = await ethers.getContractFactory("TestNetToken");
-    initialSupply = 1000000;
-    testNetToken = await TestNetToken.deploy(initialSupply);
+    testNetToken = await TestNetToken.deploy();
     await testNetToken.deployed();
 
     TestNetCrowdSale = await ethers.getContractFactory("TestNetCrowdSale");
@@ -125,29 +131,25 @@ describe("CrowdSale Contract", function () {
     });
 
     it("Should transfer unsold tokens to contract owner", async () => {
-      const crowdSaleBalance = await testNetToken.balanceOf(testNetCrowdSale.address);
-      const initialOwnerBalance = await testNetToken.balanceOf(owner.address);
-      const totalBalance = initialOwnerBalance.toNumber() + crowdSaleBalance.toNumber();
+      const totalBalance = formatEthers(await testNetToken.totalSupply());
 
       await testNetCrowdSale.endSale();
 
       const ownerBalance = await testNetToken.balanceOf(owner.address);
 
-      assert.equal(ownerBalance.toNumber(), totalBalance, "CrowdSale remaining balance transfered to owner.");
+      assert.equal(formatEthers(ownerBalance), totalBalance, "CrowdSale remaining balance transfered to owner.");
     });
 
     it("Should self destruct when endSale called", async () => {
+      await testNetCrowdSale.endSale();
       try {
-        await testNetCrowdSale.endSale();
-        const tokenAddress = await testNetCrowdSale.token();
         assert.equal(
-          tokenAddress,
+          await testNetCrowdSale.testNetToken(),
           ethers.constants.AddressZero,
           "Token address is reset to 0x0 upon self-destruction."
         );
       } catch (err) {
         assertVMException(err);
-        console.log(err);
       }
     });
   });

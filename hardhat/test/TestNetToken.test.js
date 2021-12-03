@@ -1,10 +1,18 @@
 const { assert, expect } = require("chai");
 const { ethers } = require("hardhat");
 
+function formatEthers(amount) {
+  return ethers.utils.formatEther(`${amount}`);
+}
+
+function parseEthers(amount) {
+  return ethers.utils.parseEther(`${amount}`);
+}
+
 describe("TestNetToken Contract", function () {
   let TestNetToken;
   let testNetToken;
-  let initialSupply;
+  let totalSupply;
   let owner;
   let alice;
   let bob;
@@ -12,10 +20,11 @@ describe("TestNetToken Contract", function () {
 
   beforeEach(async () => {
     TestNetToken = await ethers.getContractFactory("TestNetToken");
-    initialSupply = 1000000;
-    testNetToken = await TestNetToken.deploy(initialSupply);
+    testNetToken = await TestNetToken.deploy();
     await testNetToken.deployed();
     [owner, alice, bob, charlie] = await ethers.getSigners();
+    totalSupply = await testNetToken.totalSupply();
+    totalSupply = formatEthers(totalSupply);
   });
 
   describe("Deployment", function () {
@@ -32,29 +41,31 @@ describe("TestNetToken Contract", function () {
 
     it("Should set total supply on deployment", async () => {
       const deployedSupply = await testNetToken.totalSupply();
-      assert.equal(deployedSupply.toNumber(), initialSupply, `Sets the total supply to ${initialSupply}`);
+      assert.equal(formatEthers(deployedSupply), totalSupply, "Sets the total supply");
     });
 
     it("Should allocate initial supply to owner", async () => {
       const ownerBalance = await testNetToken.balanceOf(owner.address);
-      assert.equal(ownerBalance.toNumber(), initialSupply, "Allocates initial supply to owner");
+      assert.equal(formatEthers(ownerBalance), totalSupply, "Allocates initial supply to owner");
     });
   });
 
   describe("Transfers", function () {
     it("Should revert if sender doesn't have enough tokens", async () => {
-      const tx = testNetToken.transfer(alice.address, 1000001);
-      await expect(tx).to.be.revertedWith("You don't have enough TNT tokens to complete this transaction.");
+      const tx = testNetToken.transfer(alice.address, parseEthers(1000001));
+      await expect(tx).to.be.revertedWith("You don't have enough tokens to complete this transaction.");
     });
 
     it("Should transfer tokens and update balances", async () => {
-      await testNetToken.transfer(alice.address, 250);
+      const expectedBalance = parseEthers(999750);
+
+      await testNetToken.transfer(alice.address, parseEthers(250));
 
       const ownerBalance = await testNetToken.balanceOf(owner.address);
       const aliceBalance = await testNetToken.balanceOf(alice.address);
 
-      assert.equal(ownerBalance.toNumber(), 999750, "Sender balance updates after purchase.");
-      assert.equal(aliceBalance.toNumber(), 250, "Receiver balance updates after purchase.");
+      assert.equal(formatEthers(ownerBalance), formatEthers(expectedBalance), "Sender balance updates after purchase.");
+      assert.equal(formatEthers(aliceBalance), "250.0", "Receiver balance updates after purchase.");
     });
 
     it("Should emit Transfer event on transfer", async () => {
@@ -96,14 +107,12 @@ describe("TestNetToken Contract", function () {
 
     it("Should revert if delegate transfers more tokens than delegator's balance", async () => {
       const tx = testNetToken.connect(charlie).transferFrom(alice.address, bob.address, 300);
-      await expect(tx).to.be.revertedWith(
-        "Original account doesn't have enough TNT tokens to complete this transaction."
-      );
+      await expect(tx).to.be.revertedWith("Original account doesn't have enough tokens to complete this transaction.");
     });
 
     it("Should revert if delegate transfers more tokens than allowed", async () => {
       const tx = testNetToken.connect(charlie).transferFrom(alice.address, bob.address, 250);
-      await expect(tx).to.be.revertedWith("You haven't been allocated enough TNT tokens to complete this transaction.");
+      await expect(tx).to.be.revertedWith("You haven't been allocated enough tokens to complete this transaction.");
     });
 
     it("Should transfer delegated tokens and update balances", async () => {
