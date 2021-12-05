@@ -2,6 +2,26 @@
 
 Experimenting with Ethereum tokens using Solidity.
 
+## Roadmap
+
+Soldity
+
+- [] TestNetToken: handle false return value for transfer(), approve()
+- [] TestNetToken: implement increase/decrease allowance methods
+- [] TestNetCrowdSale: handle false return value for transfer method in buyTokens(), endSale()
+- [x] TestNetSwap: finalize sellTokens functionality
+- [] Find out how to modify default test account balance or find out how to test without modifying accounts
+- [] Explore options for safe arithmetic operations (e.g. OpenZeppelin's SafeMath)
+- [] Check for vulnerabilities in code
+
+Front-end
+
+- [] Revise styling
+- [x] Add Identicon
+- [] Add non-MetaMask wallet option
+- [] Connect with contracts with browser (web3-react)
+- [] Implement conditional rendering (e.g. when fetching data from blockchain)
+
 ### References
 
 - Dapp University's [Code Your Own Cryptocurrency on Ethereum Series](https://www.youtube.com/playlist?list=PLS5SEs8ZftgWFuKg2wbm_0GLV0Tiy1R-n)
