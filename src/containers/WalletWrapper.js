@@ -1,19 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { useWeb3React } from "@web3-react/core";
 import { Web3Provider } from "@ethersproject/providers";
+import Identicon from "identicon.js";
 
 import useToggle from "../hooks/useToggle";
 import { injectedConnector } from "../utils/connectors";
 import { isMetaMaskEnabled } from "../utils/wallets";
 import { shortenAddress } from "../utils";
 
-import Onboard from "../components/Onboard";
-import Main from "../Main";
+import Navbar from "../components/Navbar";
 import { MetaMask } from "../assets/icons";
 
-// TODO: Add non-MetaMask wallet option
-
-export default function WalletWrapper() {
+export default function WalletWrapper(props) {
   const [showWalletModal, setShowWalletModal, toggleWalletModal] = useToggle(false);
   const [wallet, setWallet] = useState(undefined);
   const [metaMaskEnabled, setMetaMaskEnabled] = useState(false);
@@ -66,22 +64,34 @@ export default function WalletWrapper() {
   const chainIdIsCorrect = chainId && chainId.toString() === "31337";
 
   return (
-    <header className='text-center'>
-      <h1>TestNetToken Crowd Sale</h1>
-      <Onboard
-        showWalletModal={showWalletModal}
-        setShowWalletModal={setShowWalletModal}
-        walletConnected={active}
-        toggleWalletModal={toggleWalletModal}
-        disconnectWallet={disconnectWallet}
-        wallets={enabledWallets}
-        canConnect={wallet && true}
-        handleConnect={handleConnect}
-        activatingConnector={activatingConnector}
-        chainIdIsCorrect={chainIdIsCorrect}
-      />
-      <p>{account ? `Your Account: ${shortenAddress(account)}` : "Connect a wallet to interact."}</p>
-      <Main />
-    </header>
+    <>
+      <header className='text-center'>
+        <h1>TestNetToken Swap Exchange</h1>
+        <Navbar
+          showWalletModal={showWalletModal}
+          setShowWalletModal={setShowWalletModal}
+          walletConnected={active}
+          toggleWalletModal={toggleWalletModal}
+          disconnectWallet={disconnectWallet}
+          wallets={enabledWallets}
+          canConnect={wallet && true}
+          handleConnect={handleConnect}
+          activatingConnector={activatingConnector}
+          chainIdIsCorrect={chainIdIsCorrect}
+        />
+        {account ? (
+          <span>
+            <img
+              style={{ margin: "0 auto", width: "30", height: "30" }}
+              src={`data:image/png;base64,${new Identicon(account, 30).toString()}`}
+            />
+            <p>{`Your Account: ${shortenAddress(account)}`}</p>
+          </span>
+        ) : (
+          <span>Connect a wallet to interact.</span>
+        )}
+      </header>
+      {props.children}
+    </>
   );
 }
