@@ -1,14 +1,8 @@
 export const tokenAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
-export const crowdSaleAddress = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
+export const swapExchangeAddress = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
 export const tokenABI = [
   {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "_initialSupply",
-        type: "uint256",
-      },
-    ],
+    inputs: [],
     stateMutability: "nonpayable",
     type: "constructor",
   },
@@ -131,6 +125,19 @@ export const tokenABI = [
   },
   {
     inputs: [],
+    name: "decimals",
+    outputs: [
+      {
+        internalType: "uint8",
+        name: "",
+        type: "uint8",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "name",
     outputs: [
       {
@@ -222,18 +229,13 @@ export const tokenABI = [
     type: "function",
   },
 ];
-export const crowdSaleABI = [
+export const swapExchangeABI = [
   {
     inputs: [
       {
         internalType: "contract TestNetToken",
         name: "_testNetToken",
         type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "_tokenPrice",
-        type: "uint256",
       },
     ],
     stateMutability: "nonpayable",
@@ -245,27 +247,64 @@ export const crowdSaleABI = [
       {
         indexed: false,
         internalType: "address",
-        name: "_buyer",
+        name: "buyer",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "token",
         type: "address",
       },
       {
         indexed: false,
         internalType: "uint256",
-        name: "_numberTokensPurchased",
+        name: "tokenAmount",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "exchangeRate",
         type: "uint256",
       },
     ],
-    name: "Sell",
+    name: "TokensPurchased",
     type: "event",
   },
   {
+    anonymous: false,
     inputs: [
       {
+        indexed: false,
+        internalType: "address",
+        name: "buyer",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "token",
+        type: "address",
+      },
+      {
+        indexed: false,
         internalType: "uint256",
-        name: "_tokenAmount",
+        name: "tokenAmount",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "exchangeRate",
         type: "uint256",
       },
     ],
+    name: "TokensSold",
+    type: "event",
+  },
+  {
+    inputs: [],
     name: "buyTokens",
     outputs: [],
     stateMutability: "payable",
@@ -273,9 +312,15 @@ export const crowdSaleABI = [
   },
   {
     inputs: [],
-    name: "endSale",
-    outputs: [],
-    stateMutability: "nonpayable",
+    name: "exchangeRate",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
   {
@@ -292,6 +337,19 @@ export const crowdSaleABI = [
     type: "function",
   },
   {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_tokenAmount",
+        type: "uint256",
+      },
+    ],
+    name: "sellTokens",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "testNetToken",
     outputs: [
@@ -299,32 +357,6 @@ export const crowdSaleABI = [
         internalType: "contract TestNetToken",
         name: "",
         type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "tokenPrice",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "tokensSold",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
       },
     ],
     stateMutability: "view",
