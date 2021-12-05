@@ -1,7 +1,5 @@
 import styled from "styled-components";
 
-// TODO: Revise styling
-
 const Wrapper = styled.div`
   .wallet-modal {
     background-color: var(--white);

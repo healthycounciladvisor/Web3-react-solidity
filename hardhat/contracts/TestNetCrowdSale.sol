@@ -4,9 +4,6 @@ pragma solidity ^0.8.0;
 
 import "./TestNetToken.sol";
 
-// TODO: handle false return value for transfer method in buyTokens(), endSale()
-// TODO: Check for vulnerabilities in code
-
 contract TestNetCrowdSale {
     bytes32 public name = "TestNetToken Crowd Sale";
     uint256 public tokenPrice;
@@ -24,7 +21,6 @@ contract TestNetCrowdSale {
     }
 
     // Using DappHub's DS-Math: https://github.com/dapphub/ds-math/blob/master/src/math.sol
-    // TODO: explore options for safe arithmetic operations (e.g. OpenZeppelin's SafeMath)
     function multiply(uint256 x, uint256 y) internal pure returns (uint256 z) {
         require(y == 0 || (z = x * y) / y == x, "ds-math-mul-overflow");
     }

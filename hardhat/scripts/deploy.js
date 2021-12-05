@@ -6,11 +6,11 @@ async function main() {
   await testNetToken.deployed();
   console.log("TestNetToken deployed to:", testNetToken.address);
 
-  const TestNetCrowdSale = await ethers.getContractFactory("TestNetCrowdSale");
-  const tokenPrice = ethers.utils.parseEther("0.01");
-  const testNetCrowdSale = await TestNetCrowdSale.deploy(testNetToken.address, tokenPrice);
-  await testNetCrowdSale.deployed();
-  console.log("TestNetCrowdSale deployed to:", testNetCrowdSale.address);
+  // const TestNetCrowdSale = await ethers.getContractFactory("TestNetCrowdSale");
+  // const tokenPrice = ethers.utils.parseEther("0.01");
+  // const testNetCrowdSale = await TestNetCrowdSale.deploy(testNetToken.address, tokenPrice);
+  // await testNetCrowdSale.deployed();
+  // console.log("TestNetCrowdSale deployed to:", testNetCrowdSale.address);
 
   const TestNetSwap = await ethers.getContractFactory("TestNetSwap");
   const testNetSwap = await TestNetSwap.deploy(testNetToken.address);

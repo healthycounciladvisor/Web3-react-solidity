@@ -4,8 +4,6 @@ import { createGlobalStyle } from "styled-components";
 // https://github.com/styled-components/vscode-styled-components/issues/175#issuecomment-798791843
 const styled = { createGlobalStyle };
 
-// TODO: Revise styling
-
 const GlobalStyle = styled.createGlobalStyle`
   *,
   *::before,
