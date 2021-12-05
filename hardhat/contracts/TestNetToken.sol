@@ -2,14 +2,11 @@
 
 pragma solidity ^0.8.4;
 
-// TODO: handle false return value for transfer(), approve()
-// TODO: implement increase/decrease allowance methods
-// TODO: Check for vulnerabilities in code
-
 contract TestNetToken {
     bytes32 public name = "TestNetToken";
     bytes32 public symbol = "TNT";
-    uint256 public totalSupply = 1000000000000000000000000;
+    uint256 public totalSupply = 1000000000000000000000000; // 1M
+    uint8 public constant decimals = 18;
 
     /* token owner => amount of owned tokens */
     mapping(address => uint256) public balanceOf;
