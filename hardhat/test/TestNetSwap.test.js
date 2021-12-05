@@ -1,5 +1,5 @@
 const { assert, expect } = require("chai");
-const { ethers } = require("hardhat");
+const { ethers, waffle } = require("hardhat");
 
 function formatEthers(amount) {
   return ethers.utils.formatEther(`${amount}`);
@@ -9,6 +9,13 @@ function parseEthers(amount) {
   return ethers.utils.parseEther(`${amount}`);
 }
 
+// From Ludu's Tweether tutorial test utils: https://github.com/t4t5/Tweether/blob/master/test/utils.js
+// Used when testing expected throw (e.g. "Sell Tokens" > "Should revert is user sells more tokens than balance")
+const assertVMException = (error) => {
+  const hasException = error.toString().search("VM Exception");
+  assert(hasException, "Should expect a VM Exception error");
+};
+
 describe("Swap Exchange Contract", function () {
   let TestNetSwap;
   let testNetSwap;
@@ -17,6 +24,9 @@ describe("Swap Exchange Contract", function () {
   let totalSupply;
   let exchangeBalance;
   let exchangeRate;
+  let buyTx;
+  let value;
+  let provider;
   let owner;
   let alice;
   let bob;
@@ -80,7 +90,6 @@ describe("Swap Exchange Contract", function () {
 
     it("Should revert if transaction would exceed exchange contract's total supply", async () => {
       // Hardhat test accounts have max 10000 ETH
-      // TODO: Find out how to modify default account balance or find out how to test without modifying default accounts
       //   let tokenAmount = ethers.BigNumber.from("1000000000000000000000001");
       //   let value = ethers.BigNumber.from(`${tokenAmount.mul(exchangeRate)}`);
       //   value = ethers.utils.parseEther(`${value}`);
@@ -89,21 +98,88 @@ describe("Swap Exchange Contract", function () {
       //   );
     });
 
-    it("Should emit TokenPurchased event", async () => {
+    it("Should emit TokensPurchased event", async () => {
       const value = ethers.utils.parseEther("1.0");
       expect(await testNetSwap.connect(alice).buyTokens({ value: value }))
-        .to.emit(testNetSwap, "TokenPurchased")
+        .to.emit(testNetSwap, "TokensPurchased")
         .withArgs(alice.address, testNetToken.address, parseEthers(100), 100); // 1ETH = 100 TNT
     });
   });
 
   describe("Sell Tokens", function () {
     beforeEach(async () => {
-      exchangeBalance = await testNetToken.balanceOf(testNetSwap.address);
       exchangeRate = await testNetSwap.exchangeRate();
-      provider = waffle.provider;
+      value = value = ethers.utils.parseEther("1.0");
+      buyTx = await testNetSwap.connect(alice).buyTokens({ value: value });
     });
 
-    it("Should transfer purchased tokens and update token, ETH balances", async () => {});
+    it("Should revert is user sells more tokens than balance", async () => {
+      const initialAliceTokenBalance = await testNetToken.balanceOf(alice.address);
+      await testNetToken.connect(alice).approve(testNetSwap.address, initialAliceTokenBalance);
+
+      const notAliceTokenBalance = ethers.utils.parseEther("500");
+      try {
+        const sellTx = await testNetSwap.connect(alice).sellTokens(notAliceTokenBalance);
+        expect(sellTx).to.be.revertedWith("Can't sell more tokens than owned.");
+      } catch (err) {
+        assertVMException(err);
+      }
+    });
+
+    it("Should allow user to sell tokens", async () => {
+      const initialAliceTokenBalance = await testNetToken.balanceOf(alice.address);
+      await testNetToken.connect(alice).approve(testNetSwap.address, initialAliceTokenBalance);
+      const sellTx = await testNetSwap.connect(alice).sellTokens(initialAliceTokenBalance);
+
+      assert.isOk(sellTx);
+    });
+
+    it("Should update token balance after tokens sold", async () => {
+      const initialAliceTokenBalance = await testNetToken.balanceOf(alice.address);
+
+      await testNetToken.connect(alice).approve(testNetSwap.address, initialAliceTokenBalance);
+      await testNetSwap.connect(alice).sellTokens(initialAliceTokenBalance);
+
+      const finalAliceTokenBalance = await testNetToken.balanceOf(alice.address);
+      const exchangeTokenBalance = await testNetToken.balanceOf(testNetSwap.address);
+
+      assert.equal(
+        parseInt(ethers.utils.formatEther(`${finalAliceTokenBalance}`)),
+        0,
+        "Updates seller's token balance after purchase"
+      );
+      assert.equal(
+        parseInt(ethers.utils.formatEther(`${exchangeTokenBalance}`)),
+        1000000,
+        "Updates exchanges's token balance after purchase"
+      );
+    });
+
+    it("Should update ETH balance after tokens sold", async () => {
+      let initialContractEthBalance = await testNetSwap.provider.getBalance(testNetSwap.address);
+      let initialAliceEthBalance = await testNetSwap.provider.getBalance(alice.address);
+      initialContractEthBalance = parseInt(ethers.utils.formatEther(`${initialContractEthBalance}`));
+      initialAliceEthBalance = parseInt(ethers.utils.formatEther(`${initialAliceEthBalance}`));
+
+      const initialAliceTokenBalance = await testNetToken.balanceOf(alice.address);
+      await testNetToken.connect(alice).approve(testNetSwap.address, initialAliceTokenBalance);
+      await testNetSwap.connect(alice).sellTokens(initialAliceTokenBalance);
+
+      let finalContractEthBalance = await testNetSwap.provider.getBalance(testNetSwap.address);
+      let finalAliceEthBalance = await testNetSwap.provider.getBalance(alice.address);
+      finalContractEthBalance = parseInt(ethers.utils.formatEther(`${finalContractEthBalance}`));
+      finalAliceEthBalance = parseInt(ethers.utils.formatEther(`${finalAliceEthBalance}`));
+
+      assert.equal(finalAliceEthBalance, initialAliceEthBalance + 1, "Updates seller's ETH balance after purchase");
+      assert.equal(finalContractEthBalance, 0, "Updates seller's ETH balance after purchase");
+    });
+
+    it("Should emit TokensSold event", async () => {
+      const initialAliceTokenBalance = await testNetToken.balanceOf(alice.address);
+      await testNetToken.connect(alice).approve(testNetSwap.address, initialAliceTokenBalance);
+      expect(await testNetSwap.connect(alice).sellTokens(initialAliceTokenBalance))
+        .to.emit(testNetSwap, "TokensSold")
+        .withArgs(alice.address, testNetToken.address, parseEthers(100), 100); // 1ETH = 100 TNT
+    });
   });
 });

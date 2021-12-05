@@ -10,7 +10,14 @@ contract TestNetSwap {
     address payable owner;
     TestNetToken public testNetToken;
 
-    event TokenPurchased(
+    event TokensPurchased(
+        address buyer,
+        address token,
+        uint256 tokenAmount,
+        uint256 exchangeRate
+    );
+
+    event TokensSold(
         address buyer,
         address token,
         uint256 tokenAmount,
@@ -22,21 +29,8 @@ contract TestNetSwap {
         testNetToken = _testNetToken;
     }
 
-    // Using DappHub's DS-Math: https://github.com/dapphub/ds-math/blob/master/src/math.sol
-    // TODO: explore options for safe arithmetic operations (e.g. OpenZeppelin's SafeMath)
-    function add(uint256 x, uint256 y) internal pure returns (uint256 z) {
-        require((z = x + y) >= x, "ds-math-add-overflow");
-    }
-
     function multiply(uint256 x, uint256 y) internal pure returns (uint256 z) {
         require(y == 0 || (z = x * y) / y == x, "ds-math-mul-overflow");
-    }
-
-    uint256 constant WAD = 10**18;
-
-    //rounds to zero if x*y < WAD / 2
-    function wdiv(uint256 x, uint256 y) internal pure returns (uint256 z) {
-        z = add(multiply(x, WAD), y / 2) / y;
     }
 
     function buyTokens() public payable {
@@ -47,8 +41,9 @@ contract TestNetSwap {
         );
 
         testNetToken.transfer(msg.sender, tokenAmount);
+        // testNetToken.setApprovalForAll(address(this), true);
 
-        emit TokenPurchased(
+        emit TokensPurchased(
             msg.sender,
             address(testNetToken),
             tokenAmount,
@@ -56,9 +51,25 @@ contract TestNetSwap {
         );
     }
 
-    function sellTokens(uint256 _tokenAmount) public payable {
-        uint256 ethAmount = wdiv(_tokenAmount, exchangeRate);
+    function sellTokens(uint256 _tokenAmount) public {
+        require(
+            testNetToken.balanceOf(msg.sender) >= _tokenAmount,
+            "Can't sell more tokens than owned."
+        );
+
+        uint256 ethAmount = _tokenAmount / exchangeRate;
+        require(
+            address(this).balance >= ethAmount,
+            "Not enought ETH balance in contract."
+        );
         testNetToken.transferFrom(msg.sender, address(this), _tokenAmount);
         payable(msg.sender).transfer(ethAmount);
+
+        emit TokensSold(
+            msg.sender,
+            address(testNetToken),
+            _tokenAmount,
+            exchangeRate
+        );
     }
 }
