@@ -1,11 +1,10 @@
-import React from "react";
 import PropTypes from "prop-types";
 
 import WalletModal from "./WalletModal";
 
-const Onboard = (props) => {
+const Navbar = (props) => {
   return (
-    <>
+    <nav>
       <button onClick={() => props.setShowWalletModal(true)}>Connect Wallet</button>
       {props.showWalletModal && (
         <WalletModal
@@ -17,11 +16,11 @@ const Onboard = (props) => {
           disconnectWallet={props.disconnectWallet}
         />
       )}
-    </>
+    </nav>
   );
 };
 
-Onboard.propTypes = {
+Navbar.propTypes = {
   setShowWalletModal: PropTypes.func,
   showWalletModal: PropTypes.bool,
   walletConnected: PropTypes.bool,
@@ -35,4 +34,4 @@ Onboard.propTypes = {
   wallets: PropTypes.array,
 };
 
-export default Onboard;
+export default Navbar;
