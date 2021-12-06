@@ -1,56 +1,103 @@
 import { useEffect, useState } from "react";
 import { useWeb3React } from "@web3-react/core";
 import { ethers } from "ethers";
+import { useForm } from "react-hook-form";
 
 import { tokenAddress, tokenABI, swapExchangeAddress, swapExchangeABI } from "./utils/contracts";
+import BuyForm from "./components/BuyForm";
+
+import StyledForm from "./styles/Form.styles";
 
 const Main = () => {
   const { account, activate, active, chainId, connector, deactivate, error, library, provider, setError } =
     useWeb3React();
-  const [loadingState, setLoadingState] = useState("not-loaded");
+  const {
+    register,
+    watch,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
+  const [loadingState, setLoadingState] = useState("loading");
   const [tokenPrice, setTokenPrice] = useState();
   const [tokensSold, setTokensSold] = useState();
   const [totalTokens, setTotalTokens] = useState();
-  const [userBalance, setUserBalance] = useState();
+  const [exchangeRate, setExchangeRate] = useState();
+  const [userEthBalance, setUserEthBalance] = useState();
+  const [userTokenBalance, setUserTokenBalance] = useState();
+  const [ethAmount, setEthAmount] = useState();
+  const [tokenAmount, setTokenAmount] = useState(0);
 
   useEffect(() => {
     if (!!library && account) {
       loadData();
     }
+    // window.alert('Contract not deployed to detected network. Please change to a supported chain')
   }, [library, account]);
 
   async function loadData() {
-    let userBalance = await library.getBalance(account);
-    userBalance = parseFloat(ethers.utils.formatEther(`${userBalance}`));
-    console.log(userBalance);
+    if (!!library && typeof tokenAddress !== "undefined") {
+      const tokenContract = new ethers.Contract(tokenAddress, tokenABI, library);
+      const swapExchangeContract = new ethers.Contract(swapExchangeAddress, swapExchangeABI, library);
 
-    const signer = library.getSigner(account);
-    const tokenContract = new ethers.Contract(tokenAddress, tokenABI, library);
-    const tokenBalance = await tokenContract.balanceOf(account);
-    console.log(tokenBalance);
-    // From crowdSaleContrat: get tokenPrice, tokensSold
-    // From tokenContract: totalCrowdSaleSupply, userBalance
-    // window.alert('Contract not deployed to current network. Please change to a supported chain')
+      let userBalance = await library.getBalance(account);
+      userBalance = parseFloat(ethers.utils.formatEther(`${userBalance}`));
+      setUserEthBalance(userBalance);
+
+      let tokenBalance = await tokenContract.balanceOf(account);
+      tokenBalance = parseInt(ethers.utils.formatEther(`${tokenBalance}`));
+      setUserTokenBalance(tokenBalance);
+
+      let exchangeRate = await swapExchangeContract.exchangeRate();
+      exchangeRate = exchangeRate.toNumber();
+      setExchangeRate(exchangeRate);
+
+      let totalSupply = await tokenContract.totalSupply();
+      totalSupply = parseInt(ethers.utils.formatEther(`${totalSupply}`));
+      setTotalTokens(totalSupply);
+      // setTotalTokens(totalSupply.toLocaleString()); // with comma separators
+      // From crowdSaleContract: tokensSold
+      setLoadingState("loaded");
+    }
   }
+
+  useEffect(() => {
+    const subscription = watch((value) => {
+      // console.log(value["ethAmt"]);
+      setEthAmount(value["ethAmt"]);
+      console.log(ethAmount);
+      // tokenQty = parseInt(ethers.utils.formatEther(`${tokenQty}`));
+      // setTokenAmount(tokenQty);
+    });
+
+    return () => subscription.unsubscribe();
+  }, [watch, ethAmount]);
+
+  const buyTokens = async () => {
+    const signer = library.getSigner(account);
+    const swapExchangeContract = new ethers.Contract(swapExchangeAddress, swapExchangeABI, signer);
+    const buyTx = await swapExchangeContract.buyTokens({ value: ethers.utils.parseEther("1") });
+    await buyTx
+      .wait()
+      .catch((error) => console.log(error))
+      .then((receipt) => console.log(receipt.transactionHash));
+  };
+
+  const onSubmit = async () => {
+    buyTokens();
+  };
 
   return (
     <>
-      <main className='text-center'>
-        <p>
-          Token price is <span>{tokenPrice}</span> ETH.
-        </p>
-        <p>
-          You currently have <span>{userBalance}</span> TNT.
-        </p>
-        <form>
-          <input type='number' defaultValue='1' min='1' pattern='[0-9]' />
-          <button type='submit'>Buy Tokens</button>
-        </form>
-        <div className='progress-bar' aria-valuemin='0' aria-valuemax='100'></div>
-        <p>
-          <span>{tokensSold}</span> / <span>{totalTokens}</span> tokens sold
-        </p>
-      </main>
+      {loadingState === "loading" ? (
+        <p className='text-center'>Waiting for wallet connection...</p>
+      ) : (
+        <main className='text-center'>
+          <h1>TestNetToken Swap Exchange</h1>
+          <StyledForm>
+            <BuyForm />
+          </StyledForm>
+        </main>
+      )}
     </>
   );
 };
