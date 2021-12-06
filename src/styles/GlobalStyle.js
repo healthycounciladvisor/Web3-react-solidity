@@ -72,10 +72,18 @@ const GlobalStyle = styled.createGlobalStyle`
   }
 
   input {
-    padding: 0.5em 1em;
+    padding: 0.63em 1em;
     border: 1px solid rgba(0, 0, 0, 0.3);
     font-size: 1rem;
     border-radius: 6px;
+
+    &:focus {
+      outline: 1px solid #93c5fd;
+    }
+
+    &:disabled {
+      background-color: #e5e7eb;
+    }
   }
 
   input::-webkit-outer-spin-button,
