@@ -6,22 +6,22 @@ Experimenting with Ethereum tokens using Solidity.
 
 Soldity
 
-- [] TestNetToken: handle false return value for transfer(), approve()
-- [] TestNetToken: implement increase/decrease allowance methods
-- [] TestNetCrowdSale: handle false return value for transfer method in buyTokens(), endSale()
-- [x] TestNetSwap: finalize sellTokens functionality
-- [] TestNetSwap.test: Update test for Buy Tokens > "Should revert if transaction would exceed exchange contract's total supply"
-- [] Explore options for safe arithmetic operations (e.g. OpenZeppelin's SafeMath)
-- [] Check for vulnerabilities in code
+:white_check_mark: TestNetToken: handle false return value for transfer(), approve()
+:white_check_mark: TestNetToken: implement increase/decrease allowance methods
+:white_check_mark: TestNetCrowdSale: handle false return value for transfer method in buyTokens(), endSale()
+:heavy_check_mark: TestNetSwap: finalize sellTokens functionality
+:white_check_mark: TestNetSwap.test: Update test for Buy Tokens > "Should revert if transaction would exceed exchange contract's total supply"
+:white_check_mark: Explore options for safe arithmetic operations (e.g. OpenZeppelin's SafeMath)
+:white_check_mark: Check for vulnerabilities in code
 
 Front-end
 
-- [] Revise styling
-- [x] Add Identicon
-- [] Add non-MetaMask wallet option
-- [x] Connect with contracts with browser (web3-react)
-- [x] Implement conditional rendering (e.g. when fetching data from blockchain)
-- [] Code clean-up
+:white_check_mark: Revise styling
+:heavy_check_mark: Add Identicon
+:white_check_mark: Add non-MetaMask wallet option
+:heavy_check_mark: Connect with contracts with browser (web3-react)
+:heavy_check_mark: Implement conditional rendering (e.g. when fetching data from blockchain)
+:white_check_mark: Code clean-up
 
 ### References
 
