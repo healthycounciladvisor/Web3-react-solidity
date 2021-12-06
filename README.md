@@ -10,7 +10,7 @@ Soldity
 - [] TestNetToken: implement increase/decrease allowance methods
 - [] TestNetCrowdSale: handle false return value for transfer method in buyTokens(), endSale()
 - [x] TestNetSwap: finalize sellTokens functionality
-- [] Find out how to modify default test account balance or find out how to test without modifying accounts
+- [] TestNetSwap.test: Update test for Buy Tokens > "Should revert if transaction would exceed exchange contract's total supply"
 - [] Explore options for safe arithmetic operations (e.g. OpenZeppelin's SafeMath)
 - [] Check for vulnerabilities in code
 
@@ -19,8 +19,9 @@ Front-end
 - [] Revise styling
 - [x] Add Identicon
 - [] Add non-MetaMask wallet option
-- [] Connect with contracts with browser (web3-react)
-- [] Implement conditional rendering (e.g. when fetching data from blockchain)
+- [x] Connect with contracts with browser (web3-react)
+- [x] Implement conditional rendering (e.g. when fetching data from blockchain)
+- [] Code clean-up
 
 ### References
 
