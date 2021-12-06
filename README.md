@@ -6,22 +6,22 @@ Experimenting with Ethereum tokens using Solidity.
 
 Soldity
 
-:white_check_mark: TestNetToken: handle false return value for transfer(), approve()
-:white_check_mark: TestNetToken: implement increase/decrease allowance methods
-:white_check_mark: TestNetCrowdSale: handle false return value for transfer method in buyTokens(), endSale()
-:heavy_check_mark: TestNetSwap: finalize sellTokens functionality
-:white_check_mark: TestNetSwap.test: Update test for Buy Tokens > "Should revert if transaction would exceed exchange contract's total supply"
-:white_check_mark: Explore options for safe arithmetic operations (e.g. OpenZeppelin's SafeMath)
-:white_check_mark: Check for vulnerabilities in code
+:white_square_button: TestNetToken: handle false return value for transfer(), approve()
+:white_square_button: TestNetToken: implement increase/decrease allowance methods
+:white_square_button: TestNetCrowdSale: handle false return value for transfer method in buyTokens(), endSale()
+:white_check_mark: TestNetSwap: finalize sellTokens functionality
+:white_square_button: TestNetSwap.test: Update test for Buy Tokens > "Should revert if transaction would exceed exchange contract's total supply"
+:white_square_button: Explore options for safe arithmetic operations (e.g. OpenZeppelin's SafeMath)
+:white_square_button: Check for vulnerabilities in code
 
 Front-end
 
-:white_check_mark: Revise styling
-:heavy_check_mark: Add Identicon
-:white_check_mark: Add non-MetaMask wallet option
-:heavy_check_mark: Connect with contracts with browser (web3-react)
-:heavy_check_mark: Implement conditional rendering (e.g. when fetching data from blockchain)
-:white_check_mark: Code clean-up
+:white_square_button: Revise styling
+:white_check_mark: Add Identicon
+:white_square_button: Add non-MetaMask wallet option
+:white_check_mark: Connect with contracts with browser (web3-react)
+:white_check_mark: Implement conditional rendering (e.g. when fetching data from blockchain)
+:white_square_button: Code clean-up
 
 ### References
 
