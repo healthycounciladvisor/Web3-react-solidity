@@ -90,6 +90,7 @@ describe("Swap Exchange Contract", function () {
 
     it("Should revert if transaction would exceed exchange contract's total supply", async () => {
       // Hardhat test accounts have max 10000 ETH
+      // TODO: Buy out total supply in multiple transactions with different accounts
       //   let tokenAmount = ethers.BigNumber.from("1000000000000000000000001");
       //   let value = ethers.BigNumber.from(`${tokenAmount.mul(exchangeRate)}`);
       //   value = ethers.utils.parseEther(`${value}`);
