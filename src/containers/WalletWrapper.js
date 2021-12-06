@@ -9,6 +9,8 @@ import { isMetaMaskEnabled } from "../utils/wallets";
 import { shortenAddress } from "../utils";
 
 import Navbar from "../components/Navbar";
+
+import Nav from "../styles/Navbar.styles";
 import { MetaMask } from "../assets/icons";
 
 export default function WalletWrapper(props) {
@@ -65,8 +67,7 @@ export default function WalletWrapper(props) {
 
   return (
     <>
-      <header className='text-center'>
-        <h1>TestNetToken Swap Exchange</h1>
+      <Nav>
         <Navbar
           showWalletModal={showWalletModal}
           setShowWalletModal={setShowWalletModal}
@@ -80,17 +81,18 @@ export default function WalletWrapper(props) {
           chainIdIsCorrect={chainIdIsCorrect}
         />
         {account ? (
-          <span>
+          <div className='wallet'>
+            <p className='address'>{`${shortenAddress(account)}`}</p>
             <img
+              className='identicon'
               style={{ margin: "0 auto", width: "30", height: "30" }}
               src={`data:image/png;base64,${new Identicon(account, 30).toString()}`}
             />
-            <p>{`Your Account: ${shortenAddress(account)}`}</p>
-          </span>
+          </div>
         ) : (
           <span>Connect a wallet to interact.</span>
         )}
-      </header>
+      </Nav>
       {props.children}
     </>
   );
