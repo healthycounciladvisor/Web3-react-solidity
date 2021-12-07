@@ -5,33 +5,23 @@ import { useForm } from "react-hook-form";
 
 import { tokenAddress, tokenABI, swapExchangeAddress, swapExchangeABI } from "./utils/contracts";
 import BuyForm from "./components/BuyForm";
+import SellForm from "./components/SellForm";
 
 import StyledForm from "./styles/Form.styles";
 
 const Main = () => {
-  const { account, activate, active, chainId, connector, deactivate, error, library, provider, setError } =
-    useWeb3React();
-  const {
-    register,
-    watch,
-    handleSubmit,
-    formState: { errors },
-  } = useForm();
+  const { account, library } = useWeb3React();
   const [loadingState, setLoadingState] = useState("loading");
-  const [tokenPrice, setTokenPrice] = useState();
-  const [tokensSold, setTokensSold] = useState();
-  const [totalTokens, setTotalTokens] = useState();
+  const [currentForm, setCurrentForm] = useState("buy");
+  const [activeButton, setActiveButton] = useState(0);
   const [exchangeRate, setExchangeRate] = useState();
   const [userEthBalance, setUserEthBalance] = useState();
   const [userTokenBalance, setUserTokenBalance] = useState();
-  const [ethAmount, setEthAmount] = useState();
-  const [tokenAmount, setTokenAmount] = useState(0);
 
   useEffect(() => {
     if (!!library && account) {
       loadData();
     }
-    // window.alert('Contract not deployed to detected network. Please change to a supported chain')
   }, [library, account]);
 
   async function loadData() {
@@ -51,39 +41,38 @@ const Main = () => {
       exchangeRate = exchangeRate.toNumber();
       setExchangeRate(exchangeRate);
 
-      let totalSupply = await tokenContract.totalSupply();
-      totalSupply = parseInt(ethers.utils.formatEther(`${totalSupply}`));
-      setTotalTokens(totalSupply);
-      // setTotalTokens(totalSupply.toLocaleString()); // with comma separators
-      // From crowdSaleContract: tokensSold
       setLoadingState("loaded");
     }
   }
 
-  useEffect(() => {
-    const subscription = watch((value) => {
-      // console.log(value["ethAmt"]);
-      setEthAmount(value["ethAmt"]);
-      console.log(ethAmount);
-      // tokenQty = parseInt(ethers.utils.formatEther(`${tokenQty}`));
-      // setTokenAmount(tokenQty);
-    });
-
-    return () => subscription.unsubscribe();
-  }, [watch, ethAmount]);
-
-  const buyTokens = async () => {
+  const buyTokens = async (etherAmount) => {
     const signer = library.getSigner(account);
     const swapExchangeContract = new ethers.Contract(swapExchangeAddress, swapExchangeABI, signer);
-    const buyTx = await swapExchangeContract.buyTokens({ value: ethers.utils.parseEther("1") });
+    const buyTx = await swapExchangeContract.buyTokens({ value: ethers.utils.parseEther(`${etherAmount}`) });
     await buyTx
       .wait()
       .catch((error) => console.log(error))
       .then((receipt) => console.log(receipt.transactionHash));
   };
 
-  const onSubmit = async () => {
-    buyTokens();
+  const sellTokens = async (tokenAmount) => {
+    const signer = library.getSigner(account);
+    const tokenContract = new ethers.Contract(tokenAddress, tokenABI, signer);
+    const swapExchangeContract = new ethers.Contract(swapExchangeAddress, swapExchangeABI, signer);
+    const approveTx = await tokenContract.approve(
+      swapExchangeContract.address,
+      ethers.utils.parseEther(`${tokenAmount}`)
+    );
+    approveTx
+      .wait()
+      .catch((error) => console.log(error))
+      .then((receipt) => console.log(receipt.transactionHash));
+
+    const sellTx = await swapExchangeContract.sellTokens(ethers.utils.parseEther(`${tokenAmount}`));
+    await sellTx
+      .wait()
+      .catch((error) => console.log(error))
+      .then((receipt) => console.log(receipt.transactionHash));
   };
 
   return (
@@ -93,8 +82,42 @@ const Main = () => {
       ) : (
         <main className='text-center'>
           <h1>TestNetToken Swap Exchange</h1>
+          <div className='form-switcher'>
+            <button
+              className={`${activeButton === 0 ? "active" : null}`}
+              onClick={() => {
+                setActiveButton(0);
+                setCurrentForm("buy");
+              }}
+            >
+              Buy
+            </button>
+            <button
+              className={`${activeButton === 1 ? "active" : null}`}
+              onClick={() => {
+                setActiveButton(1);
+                setCurrentForm("sell");
+              }}
+            >
+              Sell
+            </button>
+          </div>
           <StyledForm>
-            <BuyForm />
+            {currentForm === "buy" ? (
+              <BuyForm
+                userEthBalance={userEthBalance}
+                userTokenBalance={userTokenBalance}
+                exchangeRate={exchangeRate}
+                buyTokens={buyTokens}
+              />
+            ) : (
+              <SellForm
+                userEthBalance={userEthBalance}
+                userTokenBalance={userTokenBalance}
+                exchangeRate={exchangeRate}
+                sellTokens={sellTokens}
+              />
+            )}
           </StyledForm>
         </main>
       )}
