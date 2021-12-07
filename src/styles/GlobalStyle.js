@@ -17,6 +17,9 @@ const GlobalStyle = styled.createGlobalStyle`
     --white: #f9fafb;
     --black: #1d1e22;
 
+    --ff-primary: "Playfair Display", serif;
+    --ff-secondary: monospace;
+
     --fs-h1: 3rem;
     --fs-h2: 2.25rem;
     --fs-h3: 1.25rem;
@@ -36,6 +39,7 @@ const GlobalStyle = styled.createGlobalStyle`
 
   body {
     margin: 0;
+    font-family: var(--ff-primary);
   }
 
   h1,
@@ -121,6 +125,28 @@ const GlobalStyle = styled.createGlobalStyle`
 
   .text-center {
     text-align: center;
+  }
+
+  .address {
+    font-family: var(--ff-secondary);
+  }
+
+  .form-switcher {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 800px;
+    margin: 0 auto;
+    padding-top: 1em;
+
+    button {
+      box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+    }
+
+    & .active {
+      color: #ecfdf5;
+      background: #059669;
+    }
   }
 `;
 

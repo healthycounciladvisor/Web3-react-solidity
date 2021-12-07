@@ -3,11 +3,10 @@ import styled from "styled-components";
 const StyledForm = styled.div`
   max-width: 600px;
   margin: 0 auto;
-  border: 1px solid black;
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
   border-radius: 6px;
   padding: 1rem;
-  margin-top: 1rem;
-  margin-bottom: 1rem;
+  margin-top: 10px;
 
   form {
     width: 100%;
@@ -21,6 +20,7 @@ const StyledForm = styled.div`
 
     span {
       color: #6c757d;
+      font-family: var(--ff-secondary);
     }
   }
 
@@ -45,6 +45,8 @@ const StyledForm = styled.div`
       background-color: #e5e7eb;
       border-top-right-radius: 6px;
       border-bottom-right-radius: 6px;
+      width: 100px;
+      font-family: var(--ff-secondary);
     }
   }
 
