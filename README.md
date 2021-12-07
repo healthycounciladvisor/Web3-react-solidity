@@ -4,24 +4,32 @@ Experimenting with Ethereum tokens using Solidity.
 
 ## Roadmap
 
-Soldity
+#### Solidity
 
-- [] TestNetToken: handle false return value for transfer(), approve()
-- [] TestNetToken: implement increase/decrease allowance methods
-- [] TestNetCrowdSale: handle false return value for transfer method in buyTokens(), endSale()
+- [ ] TestNetToken: handle false return value for transfer(), approve()
+- [ ] TestNetToken: implement increase/decrease allowance methods
+- [ ] TestNetCrowdSale: handle false return value for transfer method in buyTokens(), endSale()
 - [x] TestNetSwap: finalize sellTokens functionality
-- [] TestNetSwap.test: Update test for Buy Tokens > "Should revert if transaction would exceed exchange contract's total supply"
-- [] Explore options for safe arithmetic operations (e.g. OpenZeppelin's SafeMath)
-- [] Check for vulnerabilities in code
+- [ ] TestNetSwap.test: Update test for Buy Tokens > "Should revert if transaction would exceed exchange contract's total supply"
+- [ ] Explore options for safe arithmetic operations (e.g. OpenZeppelin's SafeMath)
+- [ ] Check for vulnerabilities in code
+- [ ] Refactor contracts to use OpenZeppelin's ERC20 standard where applicable
+- [ ] Deploy to at least one live testnet (e.g. Rinkeby)
 
-Front-end
+#### Front-end
 
-- [] Revise styling
+- [ ] Revise styling
 - [x] Add Identicon
-- [] Add non-MetaMask wallet option
-- [x] Connect with contracts with browser (web3-react)
-- [x] Implement conditional rendering (e.g. when fetching data from blockchain)
-- [] Code clean-up
+- [ ] Add non-MetaMask wallet option
+- [x] Connect contracts with browser (web3-react)
+- [x] Implement conditional rendering when waiting for wallet connection
+- [ ] Implement conditional rendering when transaction in progress
+- [ ] Keep wallet connection on refresh
+- [ ] Update ETH/TNT balances live (e.g. after transaction)
+- [ ] Implement defensive checks for form input
+- [x] Implement conditional status text for wallet modal button
+- [ ] Display error message if user connects on an unsupported chain
+- [ ] Code clean-up
 
 ### References
 
@@ -37,4 +45,4 @@ Front-end
 - [React](https://reactjs.org/)
 - [Solidity](https://docs.soliditylang.org)
 
-This project was bootstrapped with Create React App. You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+This project was bootstrapped with Create React App. Learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
