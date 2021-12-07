@@ -27,6 +27,7 @@ Experimenting with Ethereum tokens using Solidity.
 - [ ] Keep wallet connection on refresh
 - [ ] Update ETH/TNT balances live (e.g. after transaction)
 - [ ] Implement defensive checks for form input
+- [ ] Reset form when transaction submitted
 - [x] Implement conditional status text for wallet modal button
 - [ ] Display error message if user connects on an unsupported chain
 - [ ] Code clean-up
