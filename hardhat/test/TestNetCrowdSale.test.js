@@ -1,5 +1,10 @@
+const chai = require("chai");
+const chaiAsPromised = require("chai-as-promised");
 const { assert, expect } = require("chai");
-const { ethers } = require("hardhat");
+const { ethers, waffle } = require("hardhat");
+
+chai.use(chaiAsPromised);
+chai.should();
 
 function formatEthers(amount) {
   return ethers.utils.formatEther(`${amount}`);
@@ -8,13 +13,6 @@ function formatEthers(amount) {
 function parseEthers(amount) {
   return ethers.utils.parseEther(`${amount}`);
 }
-
-// From Ludu's Tweether tutorial test utils: https://github.com/t4t5/Tweether/blob/master/test/utils.js
-// Used when testing expected throw (e.g. "Token Sale End" > "Should self destruct when endSale called")
-const assertVMException = (error) => {
-  const hasException = error.toString().search("VM Exception");
-  assert(hasException, "Should expect a VM Exception error");
-};
 
 describe("CrowdSale Contract", function () {
   let TestNetCrowdSale;
@@ -141,16 +139,9 @@ describe("CrowdSale Contract", function () {
     });
 
     it("Should self destruct when endSale called", async () => {
+      const provider = waffle.provider;
       await testNetCrowdSale.endSale();
-      try {
-        assert.equal(
-          await testNetCrowdSale.testNetToken(),
-          ethers.constants.AddressZero,
-          "Token address is reset to 0x0 upon self-destruction."
-        );
-      } catch (err) {
-        assertVMException(err);
-      }
+      assert.equal(await provider.getCode(testNetCrowdSale.address), "0x", "Contract bytecode has been zeroed out.");
     });
   });
 });

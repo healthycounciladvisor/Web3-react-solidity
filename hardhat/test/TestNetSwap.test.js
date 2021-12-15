@@ -1,5 +1,10 @@
+const chai = require("chai");
+const chaiAsPromised = require("chai-as-promised");
 const { assert, expect } = require("chai");
 const { ethers, waffle } = require("hardhat");
+
+chai.use(chaiAsPromised);
+chai.should();
 
 function formatEthers(amount) {
   return ethers.utils.formatEther(`${amount}`);
@@ -8,13 +13,6 @@ function formatEthers(amount) {
 function parseEthers(amount) {
   return ethers.utils.parseEther(`${amount}`);
 }
-
-// From Ludu's Tweether tutorial test utils: https://github.com/t4t5/Tweether/blob/master/test/utils.js
-// Used when testing expected throw (e.g. "Sell Tokens" > "Should revert is user sells more tokens than balance")
-const assertVMException = (error) => {
-  const hasException = error.toString().search("VM Exception");
-  assert(hasException, "Should expect a VM Exception error");
-};
 
 describe("Swap Exchange Contract", function () {
   let TestNetSwap;
@@ -119,12 +117,11 @@ describe("Swap Exchange Contract", function () {
       await testNetToken.connect(alice).approve(testNetSwap.address, initialAliceTokenBalance);
 
       const notAliceTokenBalance = ethers.utils.parseEther("500");
-      try {
-        const sellTx = await testNetSwap.connect(alice).sellTokens(notAliceTokenBalance);
-        expect(sellTx).to.be.revertedWith("Can't sell more tokens than owned.");
-      } catch (err) {
-        assertVMException(err);
-      }
+      const sellTx = testNetSwap.connect(alice).sellTokens(notAliceTokenBalance);
+      await expect(sellTx).eventually.to.be.rejectedWith(
+        Error,
+        "VM Exception while processing transaction: reverted with reason string 'Can't sell more tokens than owned.'"
+      );
     });
 
     it("Should allow user to sell tokens", async () => {
